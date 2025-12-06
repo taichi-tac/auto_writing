@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react'
 import { api } from '../services/api'
-import { BlogGenerationRequest, GeneratedBlog, GenerationStep } from '../types'
+import { GeneratedBlog, GenerationStep } from '../types'
 
 interface BlogFormProps {
   onBlogGenerated: (blog: GeneratedBlog) => void

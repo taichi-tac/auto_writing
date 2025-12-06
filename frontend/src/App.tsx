@@ -44,7 +44,7 @@ function App() {
     setError(null)
   }
 
-  const handleApiKeysSave = (rakkoKey: string, claudeKey: string) => {
+  const handleApiKeysSave = (_rakkoKey: string, _claudeKey: string) => {
     console.log('APIキーが保存されました')
   }
 
