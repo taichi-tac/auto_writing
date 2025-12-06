@@ -53,7 +53,7 @@ export function BlogForm({ onBlogGenerated, isGenerating, setIsGenerating, curre
       { step: GenerationStep.SUMMARY, delay: 120000 }, // 本文完了後
     ]
 
-    const timers: NodeJS.Timeout[] = []
+    const timers: ReturnType<typeof setTimeout>[] = []
     progressSteps.forEach(({ step, delay }) => {
       const timer = setTimeout(() => setCurrentStep(step), delay)
       timers.push(timer)
