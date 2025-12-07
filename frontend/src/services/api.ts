@@ -23,7 +23,7 @@ export const api = {
   async generateBlog(request: BlogGenerationRequest): Promise<GeneratedBlog> {
     const response = await axios.post(`${API_BASE_URL}/api/blog/generate`, request, {
       headers: getHeaders(),
-      timeout: 300000, // 5分（記事生成には時間がかかるため）
+      timeout: 600000, // 10分（記事生成には時間がかかるため）
     });
     return response.data;
   },
