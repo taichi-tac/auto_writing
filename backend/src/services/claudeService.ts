@@ -223,18 +223,29 @@ export class ClaudeService {
     structure: ArticleStructure[]
   ): Promise<string> {
     const promptTemplate = this.prompts.get('5.本文作成.txt') || '';
-    
+
+    console.log('📝 本文生成開始');
+    console.log('構造配列の長さ:', structure.length);
+    console.log('構造配列:', JSON.stringify(structure, null, 2));
+
     const searchIntentText = `a:${searchIntent.a}\nb:${searchIntent.b}\nc:${searchIntent.c}\nまた、検索意図の重要度はa＞b＞cとする。`;
     const structureText = this.formatStructure(structure);
-    
+
     let fullBody = '';
+    let sectionCount = 0;
 
     // 各見出しごとに本文を生成
     for (const section of structure) {
-      if (section.h2.includes('まとめ')) continue; // まとめは別途生成
+      if (section.h2.includes('まとめ')) {
+        console.log(`⏭️  スキップ: ${section.h2}`);
+        continue; // まとめは別途生成
+      }
+
+      sectionCount++;
+      console.log(`📄 セクション${sectionCount}を生成中: ${section.h2}`);
 
       const sectionText = `h2：${section.h2}\n${section.h3?.map(h3 => `  h3：${h3}`).join('\n') || ''}`;
-      
+
       const prompt = promptTemplate
         .replace(/{キーワード}/g, keyword)
         .replace(/{検索意図}/g, searchIntentText)
@@ -242,9 +253,11 @@ export class ClaudeService {
         .replace(/{出力したい目次箇所}/g, sectionText);
 
       const sectionBody = await this.callClaude(prompt);
+      console.log(`✅ セクション${sectionCount}生成完了（文字数: ${sectionBody.length}）`);
       fullBody += sectionBody + '\n\n';
     }
 
+    console.log(`📝 本文生成完了（総文字数: ${fullBody.length}、セクション数: ${sectionCount}）`);
     return fullBody;
   }
 
