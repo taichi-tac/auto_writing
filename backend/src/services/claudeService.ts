@@ -21,7 +21,7 @@ export class ClaudeService {
    * プロンプトファイルを読み込み
    */
   private loadPrompts() {
-    const promptsDir = path.join(__dirname, '../../..', 'ライティング');
+    const promptsDir = path.join(__dirname, '../..', 'ライティング');
 
     console.log('📁 プロンプトディレクトリ:', promptsDir);
     console.log('📁 ディレクトリ存在確認:', fs.existsSync(promptsDir));
