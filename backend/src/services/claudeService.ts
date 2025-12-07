@@ -56,7 +56,7 @@ export class ClaudeService {
   /**
    * Claude APIを呼び出し（レート制限対応）
    */
-  private async callClaude(prompt: string, retryCount = 0, maxTokens = 2048): Promise<string> {
+  private async callClaude(prompt: string, retryCount = 0, maxTokens = 1024): Promise<string> {
     try {
       const message = await this.client.messages.create({
         model: this.model,
