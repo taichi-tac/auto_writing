@@ -17,7 +17,7 @@ app.use(express.json());
 app.use('/api/blog', createBlogRoutes());
 
 // ルートエンドポイント
-app.get('/', (req, res) => {
+app.get('/', (req: express.Request, res: express.Response): void => {
   res.json({
     message: 'Auto Blog Writing API',
     version: '1.0.0',
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 });
 
 // エラーハンドリング
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction): void => {
   console.error('エラー:', err);
   res.status(500).json({
     error: 'Internal Server Error',
