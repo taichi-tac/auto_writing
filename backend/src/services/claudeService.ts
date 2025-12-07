@@ -133,17 +133,26 @@ export class ClaudeService {
     searchIntent: SearchIntent
   ): Promise<ArticleStructure[]> {
     const promptTemplate = this.prompts.get('2.ブログ記事構成.txt') || '';
-    
+
+    console.log('🏗️  記事構成生成開始');
+
     const searchIntentText = `a:${searchIntent.a}\nb:${searchIntent.b}\nc:${searchIntent.c}\nまた、検索意図の重要度はa＞b＞cとする。`;
-    
+
     const prompt = promptTemplate
       .replace(/{ジャンル}/g, genre)
       .replace(/{キーワード}/g, keyword)
       .replace(/{検索意図}/g, searchIntentText);
 
     const response = await this.callClaude(prompt);
-    
-    return this.parseStructure(response);
+
+    console.log('📄 Claude APIレスポンス（記事構成）:');
+    console.log(response);
+    console.log('--- レスポンス終了 ---');
+
+    const structure = this.parseStructure(response);
+    console.log(`✅ パース結果: ${structure.length}個の見出し`);
+
+    return structure;
   }
 
   /**
@@ -153,6 +162,8 @@ export class ClaudeService {
     const structure: ArticleStructure[] = [];
     const lines = response.split('\n');
     let currentH2: ArticleStructure | null = null;
+
+    console.log(`📋 パース開始: ${lines.length}行`);
 
     lines.forEach((line) => {
       const h2Match = line.match(/^h2[：:]\s*(.+)/);
@@ -171,6 +182,8 @@ export class ClaudeService {
     if (currentH2) {
       structure.push(currentH2);
     }
+
+    console.log(`📋 パース完了: ${structure.length}個のh2見出し`);
 
     return structure;
   }
