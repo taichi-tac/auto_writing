@@ -54,13 +54,13 @@ export class ClaudeService {
   }
 
   /**
-   * Claude APIを呼び出し
+   * Claude APIを呼び出し（レート制限対応）
    */
-  private async callClaude(prompt: string): Promise<string> {
+  private async callClaude(prompt: string, retryCount = 0, maxTokens = 2048): Promise<string> {
     try {
       const message = await this.client.messages.create({
         model: this.model,
-        max_tokens: 4096,
+        max_tokens: maxTokens,
         messages: [{
           role: 'user',
           content: prompt,
@@ -71,9 +71,21 @@ export class ClaudeService {
       if (content.type === 'text') {
         return content.text;
       }
-      
+
       throw new Error('Unexpected response type');
-    } catch (error) {
+    } catch (error: any) {
+      // レート制限エラーの場合はリトライ
+      if (error.status === 429 && retryCount < 3) {
+        const retryAfter = parseInt(error.headers?.['retry-after'] || '60', 10);
+        console.log(`⏳ レート制限に達しました。${retryAfter}秒後にリトライします... (${retryCount + 1}/3)`);
+
+        // 指定された時間待機
+        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+
+        // リトライ
+        return this.callClaude(prompt, retryCount + 1);
+      }
+
       console.error('Claude API Error:', error);
       throw new Error('記事生成に失敗しました');
     }
@@ -268,6 +280,12 @@ export class ClaudeService {
       const sectionBody = await this.callClaude(prompt);
       console.log(`✅ セクション${sectionCount}生成完了（文字数: ${sectionBody.length}）`);
       fullBody += sectionBody + '\n\n';
+
+      // レート制限回避のため、セクション間で待機（最後のセクション以外）
+      if (sectionCount < structure.length - 1) {
+        console.log('⏳ レート制限回避のため10秒待機...');
+        await new Promise(resolve => setTimeout(resolve, 10000));
+      }
     }
 
     console.log(`📝 本文生成完了（総文字数: ${fullBody.length}、セクション数: ${sectionCount}）`);
